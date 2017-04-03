@@ -89,17 +89,7 @@ dependencies {
     </application>
 </manifest>
 ```
-Of course you may have your own Application and has already configured here, like:
-``` xml
-<manifest>
-    <application
-        android:name="com.example.MyOwnApplication"
-        ...
-    >
-        ...
-    </application>
-</manifest>
-```
+
 如果已经有自己的Application，那么久继承一下就好了，如下：
 ```java
 public class MyOwnApplication extends Application {
