@@ -1,39 +1,27 @@
 # LitePal for Android  
 ![Logo](https://github.com/LitePalFramework/LitePal/blob/master/sample/src/main/logo/mini_logo.png) 
 
-LitePal is an open source Android library that allows developers to use SQLite database extremely easy. You can finish most of the database operations without writing even a SQL statement, including create or upgrade tables, crud operations, aggregate functions, etc. The setup of LitePal is quite simple as well, you can integrate it into your project in less than 5 minutes. 
 
-Experience the magic right now and have fun!
-
-## Features
- * Using object-relational mapping (ORM) pattern.
- * Almost zero-configuration(only one configuration file with few properties).
- * Maintains all tables automatically(e.g. create, alter or drop tables).
- * Multi databases supported.
- * Encapsulated APIs for avoiding writing SQL statements.
- * Awesome fluent query API.
- * Alternative choice to use SQL still, but easier and better APIs than the originals.
- * More for you to explore.
  
-## Latest Downloads
+## Eclipse使用jar包下载
  * **[litepal-1.5.1.jar](https://github.com/LitePalFramework/LitePal/raw/master/downloads/litepal-1.5.1.jar)** (library contains *.class files)
  * **[litepal-1.5.1-src.jar](https://github.com/LitePalFramework/LitePal/raw/master/downloads/litepal-1.5.1-src.jar)** (library contains *.class files and *.java files)
  
-## Quick Setup
-#### 1. Include library
+## LitePal的快速配置
+#### 1. 引入Jar包或源码
 ##### Using Eclipse
  * Download the latest jar in the above section. Or browse all versions **[here](https://github.com/LitePalFramework/LitePal/tree/master/downloads)** to choose one to download.
  * Put the jar into **libs** folder of your Android project.
  
-##### Using Android Studio
-Edit your **build.gradle** file and add below dependency:
+##### 使用Android Studio在项目的build.gradle中添加：
+
 ``` groovy
 dependencies {
     compile 'org.litepal.android:core:1.5.1'
 }
 ```
-#### 2. Configure litepal.xml
-Create a file in the **assets** folder of your project and name it as **litepal.xml**. Then copy the following codes into it.
+#### 2. 配置litepal.xml
+在项目的assets目录下面新建一个litepal.xml文件，内容如下：
 ``` xml
 <?xml version="1.0" encoding="utf-8"?>
 <litepal>
@@ -84,14 +72,14 @@ Create a file in the **assets** folder of your project and name it as **litepal.
     
 </litepal>
 ```
-This is the only configuration file, and the properties are simple. 
- * **dbname** configure the database name of project.
- * **version** configure the version of database. Each time you want to upgrade database, plus the value here.
- * **list** configure the mapping classes.
- * **storage** configure where the database file should be stored. **internal** and **external** are the only valid options.
+
+ * <dbname>是数据库的名字
+ * <version>是数据库的版本号
+ * <list>是数据库的映射模型（数据库表）
+ * <mapping>是数据库的映射模型的地址（数据库表结构）
  
-#### 3. Configure LitePalApplication
-You don't want to pass the Context param all the time. To makes the APIs simple, just configure the LitePalApplication in **AndroidManifest.xml** as below:
+#### 3. 配置LitePalApplication
+在AndroidManifest.xml中配置LitePalApplication，如下：
 ``` xml
 <manifest>
     <application
@@ -113,9 +101,9 @@ Of course you may have your own Application and has already configured here, lik
     </application>
 </manifest>
 ```
-That's OK. LitePal can still live with that. Just call **LitePal.initialize(context)** in your own Application:
+如果已经有自己的Application，那么久继承一下就好了，如下：
 ```java
-public class MyOwnApplication extends AnotherApplication {
+public class MyOwnApplication extends Application {
 
     @Override
     public void onCreate() {
@@ -125,119 +113,122 @@ public class MyOwnApplication extends AnotherApplication {
     ...
 }
 ```
-Make sure to call this method as early as you can. In the **onCreate()** method of Application will be fine. And always remember to use the application context as parameter. Do not use any instance of activity or service as parameter, or memory leaks might happen.
-## Get Started
-After setup, you can experience the powerful function now.
 
-#### 1. Create tables
-Define the models first. For example you have two models, **Album** and **Song**. The models can be defined as below:
+
+#### 1. LitePal的建表
+根据对象关系映射模式的理念，每一张表都应该对应一个模型(Model)，建表先要新建一个模型类，新建一个DEST类，如下：
 ``` java
-public class Album extends DataSupport {
-	
-    @Column(unique = true, defaultValue = "unknown")
-    private String name;
-	
-    private float price;
-	
-    private byte[] cover;
-	
-    private List<Song> songs = new ArrayList<Song>();
+public class DEST extends DataSupport {
+    private String destId;//目的地ID
+    private String cnName;//中文名
+    private String enName;//英文名
+    private String parentId;
+    private String childrenId;
+    private long updateTime;
 
-    // generated getters and setters.
-    ...
+    // 自动生成get、set方法  
 }
 ```
-``` java
-public class Song extends DataSupport {
-	
-    @Column(nullable = false)
-    private String name;
-	
-    private int duration;
-	
-    @Column(ignore = true)
-    private String uselessField;
-	
-    private Album album;
+LitePal的映射规则是非常轻量级的，不像一些其它的数据库框架，需要为每个模型类单独配置一个映射关系的XML，LitePal的所有映射都是自动完成的。根据LitePal的数据类型支持，可以进行对象关系映射的数据类型一共有8种，int、short、long、float、double、boolean、String和Date。只要是声明成这8种数据类型的字段都会被自动映射到数据库表中，并不需要进行任何额外的配置。
 
-    // generated getters and setters.
-    ...
-}
-```
-Then add these models into the mapping list in **litepal.xml**:
+
+### 注意
+> 只有private修饰的字段才会被映射到数据库表中，即如果有某一个字段不想映射的话，就设置为public、protected或者default修饰符就可以了。
+	
+* 建立好Model后，我们就把他配置到映射列表中，即编辑assest目录下的litepal.xml文件，在<list>标签中加入DEST类的声明，这里要注意，要类的完整类名。
+
 ``` xml
-<list>
-    <mapping class="org.litepal.litepalsample.model.Album" />
-    <mapping class="org.litepal.litepalsample.model.Song" />
-</list>
+<?xml version="1.0" encoding="utf-8"?>  
+<litepal>  
+    <dbname value="white" ></dbname>  
+
+    <version value="1" ></version>  
+
+    <list>  
+        <mapping class="com.whitelaning.example.litepal.DEST"></mapping>
+    </list>  
+</litepal>
 ```
-OK! The tables will be generated next time you operate database. For example, gets the **SQLiteDatabase** with following codes:
+到这里，就完成了LitePal数据库的配置。
+
+LitePal的升级表
+
+1.添加新表
+首先创建一个新的模型类，然后把它设置到litepal.xml中，如下：
+
+``` xml
+<?xml version="1.0" encoding="utf-8"?>  
+<litepal>  
+    <dbname value="white" ></dbname>  
+
+    <version value="1" ></version>  
+
+    <list>  
+        <mapping class="com.whitelaning.example.litepal.DEST"></mapping>
+        <mapping class="com.whitelaning.example.litepal.SHOPPING"></mapping>
+    </list>  
+</litepal>
+```
+然后，把litepal.xml中的version的值加一即可，如下：
+``` xml
+<?xml version="1.0" encoding="utf-8"?>  
+<litepal>  
+    <dbname value="white" ></dbname>  
+
+    <version value="2" ></version>  
+
+    <list>  
+        <mapping class="com.whitelaning.example.litepal.DEST"></mapping>
+        <mapping class="com.whitelaning.example.litepal.SHOPPING"></mapping>
+    </list>  
+</litepal>
+```
+
+2.旧表添加新列
+首先在需要升级的模型类中添加新的private修饰的字段，如下：
 ``` java
-SQLiteDatabase db = LitePal.getDatabase();
-```
-Now the tables will be generated automatically with SQLs like this:
-``` sql
-CREATE TABLE album (
-	id integer primary key autoincrement,
-	name text unique default 'unknown',
-	price real,
-	cover blob
-);
+public class DEST extends DataSupport {
+    private String destId;//目的地ID
+    private String cnName;//中文名
+    private String enName;//英文名
+    private String parentId;
+    private String childrenId;
+    private long updateTime;
+    private String imagePath;//（新增加的列）
 
-CREATE TABLE song (
-	id integer primary key autoincrement,
-	name text not null,
-	duration integer,
-	album_id integer
-);
-```
-
-#### 2. Upgrade tables
-Upgrade tables in LitePal is extremely easy. Just modify your models anyway you want:
-```java
-public class Album extends DataSupport {
-	
-    @Column(unique = true, defaultValue = "unknown")
-    private String name;
-	
-    @Column(ignore = true)
-    private float price;
-	
-    private byte[] cover;
-	
-    private Date releaseDate;
-	
-    private List<Song> songs = new ArrayList<Song>();
-
-    // generated getters and setters.
-    ...
+    // 自动生成get、set方法  
 }
 ```
-A **releaseDate** field was added and **price** field was annotated to ignore.
-Then increase the version number in **litepal.xml**:
-```xml
-<!--
-    Define the version of your database. Each time you want 
-    to upgrade your database, the version tag would helps.
-    Modify the models you defined in the mapping tag, and just 
-    make the version value plus one, the upgrade of database
-    will be processed automatically without concern.
-    For example:    
-    <version value="1" ></version>
--->
-<version value="2" ></version>
+
+然后再把litepal.xml中的version的值加一即可，如下：
+``` xml
+<?xml version="1.0" encoding="utf-8"?>  
+<litepal>  
+    <dbname value="white" ></dbname>  
+
+    <version value="3" ></version>  
+
+    <list>  
+        <mapping class="com.whitelaning.example.litepal.DEST"></mapping>
+        <mapping class="com.whitelaning.example.litepal.SHOPPING"></mapping>
+    </list>  
+</litepal>
 ```
-The tables will be upgraded next time you operate database. A **releasedate** column will be added into **album** table and the original **price** column will be removed. All the data in **album** table except those removed columns will be retained.
 
-But there are some upgrading conditions that LitePal can't handle and all data in the upgrading table will be cleaned:
- * Add a field which annotated as `unique = true`.
- * Change a field's annotation into `unique = true`.
- * Change a field's annotation into `nullable = false`.
+### LitePal的存储操作
 
-Be careful of the above conditions which will cause losing data.
+* LitePal要存储数据，首先模型类要继承DataSupport，即：
 
-#### 3. Save data
-The saving API is quite object oriented. Each model which inherits from **DataSupport** would have the **save()** method for free:
+``` java
+public class DEST extends DataSupport {
+
+}
+```
+
+继承了DataSupport类之后，这些实体类就拥有了进行CRUD操作的能力。
+
+#### 3. 存储操作：
+
 ``` java
 Album album = new Album();
 album.setName("album");
@@ -255,52 +246,98 @@ song2.setDuration(356);
 song2.setAlbum(album);
 song2.save();
 ```
-This will insert album, song1 and song2 into database with associations.
+并且save()操作是有返回值的，所以可以这样：
+``` java
+if (mDest.save()) {  
+    Toast.makeText(context, "存储成功", Toast.LENGTH_SHORT).show();  
+} else {  
+    Toast.makeText(context, "存储失败", Toast.LENGTH_SHORT).show();  
+}
+```
+#### 4. LitePal的修改操作
 
-#### 4. Update data
-The simplest way, use **save()** method to update a record found by **find()**:
+
+如果想把DEST表中id为4的destId改为"1"，可以这样写：
 ``` java
-Album albumToUpdate = DataSupport.find(Album.class, 1);
-albumToUpdate.setPrice(20.99f); // raise the price
-albumToUpdate.save();
+ContentValues values = new ContentValues();  
+values.put("destId", "1");  
+DataSupport.update(DEST.class, values, 4);  
 ```
-Each model which inherits from **DataSupport** would also have **update()** and **updateAll()** method. You can update a single record with a specified id:
+//或者用下面这种方法
 ``` java
-Album albumToUpdate = new Album();
-albumToUpdate.setPrice(20.99f); // raise the price
-albumToUpdate.update(id);
+DEST updateNews = new DEST();  
+updateNews.setDestId("1");  
+updateNews.update(4);
 ```
-Or you can update multiple records with a where condition:
+如果想把DEST表中所有destId为"1"的改为"2"可以这样写：
 ``` java
-Album albumToUpdate = new Album();
-albumToUpdate.setPrice(20.99f); // raise the price
-albumToUpdate.updateAll("name = ?", "album");
+ContentValues values = new ContentValues();  
+values.put("destId", "2");  
+DataSupport.updateAll(DEST.class, values, "destId = ?", "1");  
+```
+//或者用下面这种方法
+``` java
+DEST updateNews = new DEST();  
+updateNews.setdestId("2");  
+updateNews.updateAll("destId = ?", "1");
+```
+#### 5. LitePal的删除操作
+比如说我们想删除DEST表中id为2的记录，就可以这样写
+``` java
+DataSupport.delete(Song.class, 2);
+```
+想把DEST表中destId为“1”的所有数据删除，就可以这样写：
+``` java
+DataSupport.deleteAll(DEST.class, "destId = ? ", "1");
+```
+如果我们想把DEST表中所有的数据全部删除掉，就可以这样写：
+``` java
+DataSupport.deleteAll(DEST.class);
 ```
 
-#### 5. Delete data
-You can delete a single record using the static **delete()** method in **DataSupport**:
-``` java
-DataSupport.delete(Song.class, id);
-```
-Or delete multiple records using the static **deleteAll()** method in **DataSupport**:
-``` java
-DataSupport.deleteAll(Song.class, "duration > ?" , "350");
-```
+#### 6. LitePal的查询操作
+LitePal的查询操作
 
-#### 6. Query data
-Find a single record from song table with specified id:
+查询DEST表中id为1的这条记录，使用LitePal就可以这样写：
 ``` java
-Song song = DataSupport.find(Song.class, id);
+DEST mDest = DataSupport.find(DEST.class, 1);
 ```
-Find all records from song table:
+想要获取DEST表中的第一条数据，只需要这样写：
 ``` java
-List<Song> allSongs = DataSupport.findAll(Song.class);
+DEST firstDest = DataSupport.findFirst(DEST.class);
 ```
-Constructing complex query with fluent query:
+想要获取News表中的最后一条数据，只需要这样写：
 ``` java
-List<Song> songs = DataSupport.where("name like ?", "song%").order("duration").find(Song.class);
+DEST lastDest = DataSupport.findLast(DEST.class);
 ```
-
+想把DEST表中id为1、3、5、7的数据都查出来，只需要这样写：
+``` java
+List<DEST> mDestList = DataSupport.findAll(DEST.class, 1, 3, 5, 7);
+```
+查询所有数据，只需要这样写：
+``` java
+List<DEST> mDestList = DataSupport.findAll(DEST.class);
+```
+想查询DEST表中所有父类id为"1"的数据，就可以这样写：
+``` java
+List<DEST> mDestList = DataSupport.where("parentId = ?", "1").find(DEST.class);
+```
+许你并不需要那么多的数据，而是只要cnName和enName这两列数据。那么也很简单，我们只要再增加一个连缀就行了，如下所示：
+``` java
+List<DEST> mDestList = DataSupport.select("cnName", "enName").where("parentId = ?", "1").find(DEST.class);
+```
+也许你还要数据按照添加的时间倒序排列，那么可以这样：
+``` java
+List<DEST> mDestList = DataSupport.select("cnName", "enName").where("parentId = ?", "1").order("updateTime desc").find(DEST.class);
+```
+数据太多了，其实你只要前10行就行了，那么可以这样：
+``` java
+List<DEST> mDestList = DataSupport.select("cnName", "enName").where("parentId = ?", "1").order("updateTime desc").limit(10).find(DEST.class);
+```
+如果我们想进行分页展示，那么翻页了，怎么办？可以添加一个偏移量就好了，这样：
+``` java
+List<DEST> mDestList = DataSupport.select("cnName", "enName").where("parentId = ?", "1").order("updateTime desc").limit(10).offset(10).find(DEST.class);
+```
 #### 7. Async operations
 Every database operation is on main thread by default. If your operation might spent a long time,
 for example saving or querying tons of records. You may want to use async operations.
@@ -359,81 +396,20 @@ And you can delete any database by specified database name:
 LitePal.deleteDatabase("newdb");
 ```
 
-## ProGuard
-If you are using ProGuard you might need to add the following option:
+LitePal的聚合函数
 
-```proguard
--keep class org.litepal.** {
-    *;
-}
-
--keep class * extends org.litepal.crud.DataSupport {
-    *;
-}
+count()
+如果想统计行数，那么就可以调用count()即可：
+```java
+int result = DataSupport.count(DEST.class);
 ```
 
-## Developed By
- * Tony Green
- 
-## Sample App
-The sample app has been published onto Google Play for easy access. 
-
-Get it on:
-
-[![Google Play](http://www.gstatic.com/android/market_images/web/play_logo.png)](https://play.google.com/store/apps/details?id=org.litepal.litepalsample)
-
-## Bugs Report
-If you find any bug when using LitePal, please report **[here](https://github.com/LitePalFramework/LitePal/issues/new)**. Thanks for helping us making better.
-
-## Change logs
-### 1.5.1
- * Support async operations for all crud methods.
- * Add **saveOrUpdate()** method in DataSupport.
- * Fix known bugs.
-
-### 1.4.1
- * Fix bug of DateSupport.count error.
- * Fix bug of losing blob data when upgrading database.
- * Fix other known bugs.
-
-### 1.4.0
- * Support multiple databases.
- * Support crud operations for generic collection data in models.
- * Add SQLite keywords convert function to avoid keywords conflict.
- * Fix known bugs.
- 
-### 1.3.2
- * Improve an outstanding speed up of querying and saving.
- * Support to store database file in external storage.
- * Support to mapping fields which inherit from superclass.
- * Add **findFirst()** and **findLast()** in fluent query.
- * Add **isExist()** and **saveIfNotExist()** method in DataSupport.
-
-### 1.3.1
- * Support storing binary data. Byte array field will be mapped into database as blob type.
- * Add **saveFast()** method in DataSupport. If your model has no associations to handle, use **saveFast()** method will be much more efficient.
- * Improve query speed with optimized algorithm.
- 
-### 1.3.0
- * Add annotation functions to declare **unique**, **not null** and **default** constraints.
- * Remove the trick of ignore mapping fields with non-private modifier.
- * Support to use annotation to ignore mapping fields with `ignore = true`
- * Add some magical methods in DataSupport for those who understand LitePal deeper.
- * Fix known bugs.
- 
-## License
+如果想统计parentId为"1"的数据的行数，那么可以这样：
+```java
+int result = DataSupport.where("parentId = ?", "1").count(DEST.class);
 ```
-Copyright (C)  Tony Green, LitePal Framework Open Source Project
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+sum()
+如果想统计一下DEST表中，所有updateTime的和（虽然毫无用处....），那么可以这样：
+```java
+long result = DataSupport.sum(DEST.class, "updateTime", long.class);
 ```
