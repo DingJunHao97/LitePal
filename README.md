@@ -1,7 +1,10 @@
-# LitePal for Android  
-![Logo](https://github.com/LitePalFramework/LitePal/blob/master/sample/src/main/logo/mini_logo.png) 
+ 
 
+# 欢迎关注微信公众号、长期为您推荐优秀博文、开源项目、视频
 
+![](http://oi5nqn6ce.bkt.clouddn.com/itheima/booster/code/qrcode.png)
+
+项目总贴地址：https://github.com/open-android/Android
  
 ## Eclipse使用jar包下载
  * **[litepal-1.5.1.jar](https://github.com/LitePalFramework/LitePal/raw/master/downloads/litepal-1.5.1.jar)** (library contains *.class files)
