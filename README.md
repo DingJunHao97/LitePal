@@ -327,63 +327,7 @@ List<DEST> mDestList = DataSupport.select("cnName", "enName").where("parentId = 
 ``` java
 List<DEST> mDestList = DataSupport.select("cnName", "enName").where("parentId = ?", "1").order("updateTime desc").limit(10).offset(10).find(DEST.class);
 ```
-#### 7. Async operations
-Every database operation is on main thread by default. If your operation might spent a long time,
-for example saving or querying tons of records. You may want to use async operations.
 
-LitePal support async operations on all crud methods. If you want to find all records from song table
-on a background thread, use codes like this:
-```java
-DataSupport.findAllAsync(Song.class).listen(new FindMultiCallback() {
-    @Override
-    public <T> void onFinish(List<T> t) {
-        List<Song> allSongs = (List<Song>) t;
-    }
-});
-```
-Just use **findAllAsync()** instead of **findAll()**, and append a **listen()** method, the finding result will
-be callback to **onFinish()** method once it finished.
-
-Abd saving asynchronously is quite the same:
-```java
-Album album = new Album();
-album.setName("album");
-album.setPrice(10.99f);
-album.setCover(getCoverImageBytes());
-album.saveAsync().listen(new SaveCallback() {
-    @Override
-    public void onFinish(boolean success) {
-
-    }
-});
-```
-Just use **saveAsync()** instead of **save()**. It will save Album into database on a background, and
-the saving result will be callback to **onFinish()** method.
-
-#### 8. Multiple databases
-If your app needs multiple databases, LitePal support it completely. You can create as many databases as you want at runtime. For example:
-```java
-LitePalDB litePalDB = new LitePalDB("demo2", 1);
-litePalDB.addClassName(Singer.class.getName());
-litePalDB.addClassName(Album.class.getName());
-litePalDB.addClassName(Song.class.getName());
-LitePal.use(litePalDB);
-```
-This will create a **demo2** database with **singer**, **album** and **song** tables.
-
-If you just want to create a new database but with same configuration as **litepal.xml**, you can do it with:
-```java
-LitePalDB litePalDB = LitePalDB.fromDefault("newdb");
-LitePal.use(litePalDB);
-```
-You can always switch back to default database with:
-```java
-LitePal.useDefault();
-```
-And you can delete any database by specified database name:
-```java
-LitePal.deleteDatabase("newdb");
-```
 
 LitePal的聚合函数
 
