@@ -10,8 +10,7 @@
 ## LitePal的快速配置
 #### 1. 引入Jar包或源码
 ##### Using Eclipse
- * Download the latest jar in the above section. Or browse all versions **[here](https://github.com/LitePalFramework/LitePal/tree/master/downloads)** to choose one to download.
- * Put the jar into **libs** folder of your Android project.
+ * 使用Eclipse到 **[here](https://github.com/LitePalFramework/LitePal/tree/master/downloads)** 下载好了jar包之后，把它复制到项目的libs目录中就算是引入成功了。
  
 ##### 使用Android Studio在项目的build.gradle中添加：
 
