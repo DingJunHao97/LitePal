@@ -1,6 +1,6 @@
  
 
-# 欢迎关注微信公众号、长期为您推荐优秀博文、开源项目、视频
+### 欢迎关注微信公众号、长期为您推荐优秀博文、开源项目、视频
 
 ![](http://oi5nqn6ce.bkt.clouddn.com/itheima/booster/code/qrcode.png)
 
