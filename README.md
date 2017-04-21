@@ -7,6 +7,8 @@
 项目总贴地址：https://github.com/open-android/Android
 
 项目地址：https://github.com/open-android/LitePal
+
+LitePal配套学习视频： https://v.qq.com/x/page/o03901ziv09.html
  
 ## Eclipse使用jar包下载
  * **[litepal-1.5.1.jar](https://github.com/LitePalFramework/LitePal/raw/master/downloads/litepal-1.5.1.jar)** (library contains *.class files)
